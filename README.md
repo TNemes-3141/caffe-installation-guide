@@ -54,12 +54,12 @@ $ sudo apt-get install libjasper-dev libopenblas-dev libatlas-base-dev libblas-d
 
 3. Install OpenCV 4:
 ```
-$ wget -O opencv.zip https://github.com/opencv/opencv/archive/4.1.2.zip
-$ wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.1.2.zip
+$ wget -O opencv.zip https://github.com/opencv/opencv/archive/4.4.0.zip
+$ wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.4.0.zip
 $ unzip opencv.zip
 $ unzip opencv_contrib.zip
-$ mv opencv-4.1.2 opencv
-$ mv opencv_contrib-4.1.2 opencv_contrib
+$ mv opencv-4.4.0 opencv
+$ mv opencv_contrib-4.4.0 opencv_contrib
 $ cd opencv
 $ mkdir build
 $ cd build
@@ -87,9 +87,12 @@ $ cmake -D CMAKE_BUILD_TYPE=RELEASE \
         -D BUILD_EXAMPLES=OFF \
         -D WITH_CUDA=ON \
         -D CUDA_ARCH_BIN=7.0 \ # please substitute this number for the compute capability of your own card, found here: https://developer.nvidia.com/cuda-gpus
+        -D OPENCV_DNN_CUDA=ON \
         -D WITH_CUDNN=ON \
         -D ENABLE_FAST_MATH=ON \
         -D CUDA_FAST_MATH=ON \
+        -D CUDNN_LIBRARY=/usr/local/cuda/lib64/libcudnn.so.7.6.5 \ # look up your own directory
+        -D CUDNN_INCLUDE_DIR=/usr/local/cuda/include \
         -D WITH_CUBLAS=ON ..
         
 $ make -j$(nproc)
@@ -104,7 +107,7 @@ $ source .bashrc
 $ python3
 >>> import cv2
 >>> print(cv2.__version__)
->>> 4.1.2                    # expected result
+>>> 4.4.0                  # expected result
 ```
 4. Install Caffe dependencies:
 ```
