@@ -41,7 +41,7 @@ $ sudo ln -s libcudnn.so.7 libcudnn.so
 $ sudo ldconfig
 ```
 
-2. Install dependencies for OpenCV
+2. Install dependencies for OpenCV:
 ```
 $ sudo apt-get install build-essential cmake git unzip pkg-config libjpeg-dev libpng-dev libtiff-dev libavcodec-dev libavformat-dev libswscale-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfaac-dev libmp3lame-dev libtheora-dev libavresample-dev libvorbis-dev libopencore-amrnb-dev libopencore-amrwb-dev libgtk2.0-dev libcanberra-gtk-module libcanberra-gtk3-module x264 libxvidcore-dev libx264-dev libgtk-3-dev python3-dev python3-numpy python3-pip python3-testresources libtbb2 libtbb-dev libdc1394-22-dev libv4l-dev v4l-utils libxine2-dev software-properties-common
 $ cd /usr/include/linux
@@ -52,7 +52,7 @@ $ sudo apt-get update
 $ sudo apt-get install libjasper-dev libopenblas-dev libatlas-base-dev libblas-dev liblapack-dev gfortran libhdf5-dev protobuf-compiler libprotobuf-dev libgoogle-glog-dev libgflags-dev
 ```
 
-3. Install OpenCV 4
+3. Install OpenCV 4:
 ```
 $ wget -O opencv.zip https://github.com/opencv/opencv/archive/4.1.2.zip
 $ wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.1.2.zip
@@ -96,7 +96,7 @@ $ make -j$(nproc)
 $ sudo make install
 $ sudo ldconfig
 $ gedit .bashrc
-# Append following lines:
+# Append the following:
     export PKG_CONFIG_PATH="/home/[YOUR_USERNAME]/opencv/build/unix-install" # or your folder with 'opencv4.pc'
 $ source .bashrc
 
@@ -112,109 +112,56 @@ $ sudo apt-get install libleveldb-dev liblmdb-dev libsnappy-dev libhdf5-serial-d
 $ sudo apt-get install --no-install-recommends libboost-all-dev
 $ pip3 install pydot protobuf
 ```
-5. Option 1: Standard-Caffe installieren:
-    `$ cd /usr/lib/x86_64-linux-gnu`
-    `$ sudo ln -s libboost_python38.so libboost_python3.so`
-    `$ cd ~`
-    `$ wget -O caffe.zip https://github.com/Qengineering/caffe/archive/master.zip`
-    `$ unzip caffe.zip`
-    `$ cd caffe-master`
-    `$ kate Makefile`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 218: python3.6 ändern zu python3.8`
-    `$ cp Makefile.config.example Makefile.config`
-    `$ kate Makefile.config`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 5: USE_CUDNN := 1 entkommentieren`
-        `# In Zeile 40: -gencode arch=compute_20,code=sm_20 und -gencode arch=compute_20,code=sm_21 löschen`
-        `# In Zeile 80: Ändern zu PYTHON_LIBRARIES := boost_python3 python3.8`
-        `# In Zeile 81: Ändern zu PYTHON_INCLUDE := /usr/include/python3.8 \`
-        `# In Zeile 96: Ändern zu INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ /usr/include`
-    `$ make clean`
-    `$ make all -j$(nproc)`
-    `$ make test -j$(nproc)`
-    `$ make runtest -j$(nproc)`
-    `$ make pycaffe -j$(nproc)`
-    `$ make pytest -j$(nproc)`
-    `$ cd ~`
-    `$ kate .bashrc`
-    `# Folgende Zeilen anfügen:`
-        `export PYTHONPATH="${PYTHONPATH}:/home/tamas/caffe-master/python"`
-    `$ source .bashrc`
-    `# Installation testen mit:`
-    `$ python3`
-    `>>> import caffe`
-    `>>> import caffe.proto.caffe_pb2 as pb`
-    `>>> print(caffe.__version__)`
-    `# Output: 1.0.0`
+5. Compile and install Caffe:
+```
+$ cd /usr/lib/x86_64-linux-gnu
+$ sudo ln -s libboost_python38.so libboost_python3.so # adapt to Python version
+$ cd ~/opencv/build/unix-install # or your OpenCV installation folder
+$ sudo ln -s opencv4.pc opencv.pc
+$ cd ~
+$ wget -O caffe.zip https://github.com/Qengineering/caffe/archive/ssd.zip # modified Caffe with OpenCV 4 compatibility
+$ unzip caffe.zip
+$ mv caffe-ssd caffe
+$ cd caffe
+$ gedit Makefile
+# Edit the following:
+    # Line 206: change python2.7 to python3.8 # adapt to Python version
+$ cp Makefile.config.example Makefile.config
+$ gedit Makefile.config
+# Edit the following:
+    # Line 5: Uncomment USE_CUDNN := 1
+    # Line 22: Uncomment OPENCV_VERSION := 4
+    # Line 24: Uncomment USE_PKG_CONFIG := 1
+    # Line 38: delete -gencode arch=compute_20,code=sm_20 and -gencode arch=compute_20,code=sm_21; add -gencode arch=compute_60,code=sm_60
+    # Line 80: Change to PYTHON_LIBRARIES := boost_python3 python3.8 # adapt to Python version 
+    # Line 81: Change to PYTHON_INCLUDE := /usr/include/python3.8 \ # adapt to Python version
+    # Line 96: Change to INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ /usr/include /usr/local/include/opencv4
+    # Line 97: Change to LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial/
+$ make clean
+$ make all -j$(nproc)
+$ make test -j$(nproc) # important: run all test to see if there's any isuue somewhere!
+$ make runtest -j$(nproc)
+$ make pycaffe -j$(nproc)
+$ make pytest -j$(nproc)
+$ cd ~
+$ gedit .bashrc
+# Append the following:
+    `export PYTHONPATH="${PYTHONPATH}:/home/[YOUR_USERNAME]/caffe/python" # or the location of the Python folder of your Caffe installation
+$ source .bashrc
 
-6. Option 2: Caffe-SSD installieren:
-    `$ cd /usr/lib/x86_64-linux-gnu`
-    `$ sudo ln -s libboost_python38.so libboost_python3.so`
-    `$ cd ~/opencv/build/unix-install`
-    `$ sudo ln -s opencv4.pc opencv.pc`
-    `$ cd ~`
-    `$ git clone https://github.com/weiliu89/caffe.git`
-    `$ cd caffe`
-    `$ git checkout ssd`
-    `$ kate Makefile`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 202: python2.7 ändern zu python3.8`
-    `$ cp Makefile.config.example Makefile.config`
-    `$ kate Makefile.config`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 5: USE_CUDNN := 1 entkommentieren`
-        `# In Zeile 21: OPENCV_VERSION := 3 entkommentieren`
-        `# In Zeile 25: USE_PKG_CONFIG := 1 vorziehen und entkommentieren`
-        `# In Zeile 39: -gencode arch=compute_20,code=sm_20 und -gencode arch=compute_20,code=sm_21 löschen, -gencode arch=compute_60,code=sm_60, -gencode arch=compute_61,code=sm_61 und -gencode arch=compute_61,code=compute_61 einfügen`
-        `# In Zeile 70 und 71: PYTHON_INCLUDE auskommentieren`
-        `# In Zeile 80: PYTHON_LIBRARIES entkommentieren und zu 'boost_python3 python3.8' ändern`
-        `# In Zeile 81: PYTHON_INCLUDE entkommentieren und zu /usr/include/python3.8 \ /usr/lib/python3/dist-packages/numpy/core/include ändern`
-        `# In Zeile 93: WITH_PYTHON_LAYER := 1 entkommentieren`
-        `# IN Zeile 96: INCLDUE_DIRS ändern zu: /usr/local/include /usr/include/hdf5/serial/ /usr/local/include/opencv4`
-        `# In Zeile 97: LIBRARY_DIRS ändern zu: /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial/`
-    `$ kate src/caffe/layers/window_data_layer.cpp`
-    `# Folgende Änderungen vornehmen:`
-        `$ In Zeile 293: Ändern zu cv_img = cv::imread(image.first, cv::IMREAD_COLOR);`
-    `$ kate src/caffe/layers/video_data_layer.cpp`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 55: Ändern zu total_frames_ = cap_.get(cv::CAP_PROP_FRAME_COUNT);`
-        `# In Zeile 60: Ändern zu cap_.set(cv::CAP_PROP_POS_FRAMES, 0);`
-    `$ kate src/caffe/util/io.cpp`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 86 und 87: Ändern zu int cv_read_flag = (is_color ? cv::IMREAD_COLOR : cv::IMREAD_GRAYSCALE);`
-        `# In Zeile 666 und 667: Ändern zu int cv_read_flag = (is_color ? cv::IMREAD_COLOR : cv::IMREAD_GRAYSCALE);`
-    `$ kate src/caffe/util/bbox_util.cpp`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 2186: Ändern zu CV_RGB(255, 255, 255), cv::FILLED);`
-        `# In Zeile 2212: Ändern zu color, cv::FILLED);`
-        `# In Zeile 2221: Ändern zu cv::VideoWriter outputVideo(save_file, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'),`
-    `$ kate src/caffe/util/im_transforms.cpp`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 246, 248, 251, 429, 430, 442, 452, 465, 475, 488, 491, 539, 546, 617, 628, 651 und 662: Fehler ausbessern`
-    `$ kate src/caffe/test/test_io.cpp`
-    `# Folgende Änderungen vornehmen:`
-        `# In Zeile 23 und 24: Ändern zu int cv_read_flag = (is_color ? cv::IMREAD_COLOR : cv::IMREAD_GRAYSCALE);`
-    `$ make -j$(nproc)`
-    `$ make py -j$(nproc)`
-    `$ make test -j$(nproc)`
-    `$ make runtest -j$(nproc)`
-    `$ cd ~`
-    `$ kate .bashrc`
-    `# Folgende Zeilen anfügen:`
-        `export PYTHONPATH="${PYTHONPATH}:/home/tamas/caffe/python"`
-    `$ source .bashrc`
-    `# Installation testen mit:`
-    `$ python3`
-    `>>> import caffe`
-    `>>> import caffe.proto.caffe_pb2 as pb`
-    `>>> print(caffe.__version__)`
-    `# Output: 1.0.0-rc3`
+# Test installation with:
+$ python3
+>>> import caffe
+>>> print(caffe.__version__)
+>>> 1.0.0 or 1.0.0-rc3       # expected result
+```
+Hope this guide helps, I included some of my own experiences with the installation process most guides miss. Check out my sources in the "References" tab.
+Good luck!
 
 ---
     
-## Referenzen:
-- Offizielle Guides: https://qengineering.eu/install-caffe-on-ubuntu-18.04-with-opencv-4.1.html, https://github.com/weiliu89/caffe/tree/ssd, https://github.com/chuanqi305/MobileNet-SSD, https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
-- GitHub-Issues: https://github.com/BVLC/caffe/issues/1325, https://github.com/BVLC/caffe/issues/4843, https://github.com/opencv/opencv/issues/14205
-- Stack Overflow und Ask Ubuntu: https://stackoverflow.com/questions/38680593/importerror-no-module-named-google-protobuf, https://stackoverflow.com/questions/51350998/7515-fatal-error-stdlib-h-no-such-file-or-directory-include-next-stdlib-h, https://askubuntu.com/questions/1025928/why-do-i-get-sbin-ldconfig-real-usr-local-cuda-lib64-libcudnn-so-7-is-not-a
-- "Caffe Users" Google-Gruppe: https://groups.google.com/g/caffe-users/
+## References:
+- Official guides: https://qengineering.eu/install-caffe-on-ubuntu-20.04-with-opencv-4.4.html, https://github.com/weiliu89/caffe/tree/ssd, https://github.com/chuanqi305/MobileNet-SSD, https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
+- GitHub-issues: https://github.com/BVLC/caffe/issues/1325, https://github.com/BVLC/caffe/issues/4843, https://github.com/opencv/opencv/issues/14205
+- Stack Overflow and Ask Ubuntu: https://stackoverflow.com/questions/38680593/importerror-no-module-named-google-protobuf, https://stackoverflow.com/questions/51350998/7515-fatal-error-stdlib-h-no-such-file-or-directory-include-next-stdlib-h, https://askubuntu.com/questions/1025928/why-do-i-get-sbin-ldconfig-real-usr-local-cuda-lib64-libcudnn-so-7-is-not-a
+- "Caffe Users" Google-group: https://groups.google.com/g/caffe-users/
