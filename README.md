@@ -23,7 +23,7 @@ $ sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 40
 $ sudo update-alternatives --set c++ /usr/bin/g++
 ```
 
-1. Install cuDNN (CUDA already installed, please adapt commands for your CUDA/cuDNN version):
+1. Install cuDNN (I'm assuming CUDA is already installed, please adapt commands for your CUDA/cuDNN version):
 
 https://developer.nvidia.com/cudnn
 ```
@@ -45,11 +45,12 @@ $ sudo ldconfig
 ```
 $ sudo apt-get install build-essential cmake git unzip pkg-config libjpeg-dev libpng-dev libtiff-dev libavcodec-dev libavformat-dev libswscale-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfaac-dev libmp3lame-dev libtheora-dev libavresample-dev libvorbis-dev libopencore-amrnb-dev libopencore-amrwb-dev libgtk2.0-dev libcanberra-gtk-module libcanberra-gtk3-module x264 libxvidcore-dev libx264-dev libgtk-3-dev python3-dev python3-numpy python3-pip python3-testresources libtbb2 libtbb-dev libdc1394-22-dev libv4l-dev v4l-utils libxine2-dev software-properties-common
 $ cd /usr/include/linux
-$ sudo ln -s -f ../libv4l1-videodev.h videodev.h
+$ sudo ln -s videodev2.h videodev.h
 $ cd ~
 $ sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
 $ sudo apt-get update
 $ sudo apt-get install libjasper-dev libopenblas-dev libatlas-base-dev libblas-dev liblapack-dev gfortran libhdf5-dev protobuf-compiler libprotobuf-dev libgoogle-glog-dev libgflags-dev
+# Note: If the last command for some reason fails (e.g. outdated repository), just install all packages except libjasper-dev. It's not included in current Ubuntu repos anymore and recommended for OpenCV, but not required.
 ```
 
 3. Install OpenCV 4:
@@ -117,29 +118,18 @@ $ pip3 install pydot protobuf
 ```
 5. Compile and install Caffe:
 ```
-$ cd /usr/lib/x86_64-linux-gnu
-$ sudo ln -s libboost_python38.so libboost_python3.so # adapt to Python version
 $ cd ~/opencv/build/unix-install # or your OpenCV installation folder
 $ sudo ln -s opencv4.pc opencv.pc
 $ cd ~
-$ wget -O caffe.zip https://github.com/Qengineering/caffe/archive/ssd.zip # modified Caffe with OpenCV 4 compatibility
+$ wget -O caffe.zip https://github.com/Qengineering/caffe/archive/ssd.zip
+# Note: The above is a modified Caffe with OpenCV 4 and cuDNN 8 compatibility. It has all the functions of normal Caffe, it just adds some extra networks like SSD. So whenever you can, use this instead since the original is deprecated and not compatible with current software.
 $ unzip caffe.zip
 $ mv caffe-ssd caffe
 $ cd caffe
-$ gedit Makefile
-# Edit the following:
-    # Line 206: change python2.7 to python3.8 # adapt to Python version
-$ cp Makefile.config.example Makefile.config
+# Note: Included in the Caffe repo, there are many example Makefile configurations included. Choose the one which best fits your needs and system.
+$ cp [CHOSEN_CONFIG_FILE].example Makefile.config
 $ gedit Makefile.config
-# Edit the following:
-    # Line 5: Uncomment USE_CUDNN := 1
-    # Line 22: Uncomment OPENCV_VERSION := 4
-    # Line 24: Uncomment USE_PKG_CONFIG := 1
-    # Line 38: delete -gencode arch=compute_20,code=sm_20 and -gencode arch=compute_20,code=sm_21; add -gencode arch=compute_60,code=sm_60
-    # Line 80: Change to PYTHON_LIBRARIES := boost_python3 python3.8 # adapt to Python version 
-    # Line 81: Change to PYTHON_INCLUDE := /usr/include/python3.8 \ # adapt to Python version
-    # Line 96: Change to INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ /usr/include /usr/local/include/opencv4
-    # Line 97: Change to LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial/
+# Note: Here, you can adjust some settings to your liking, but I wouldn't recommend touching it too much as the settings are optimized to work on your chosen system.
 $ make clean
 $ make all -j$(nproc)
 $ make test -j$(nproc) # important: run all test to see if there's any isuue somewhere!
@@ -158,7 +148,7 @@ $ python3
 >>> print(caffe.__version__)
 >>> 1.0.0 or 1.0.0-rc3       # expected result
 ```
-Hope this guide helps, I included some of my own experiences with the installation process most guides miss. Check out my sources in the "References" tab.
+Hope this guide helps, I included my own experiences on the installation process which most guides miss. Check out my sources in the "References" tab.
 Good luck!
 
 ---
