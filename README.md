@@ -130,6 +130,19 @@ $ cd caffe
 $ cp [CHOSEN_CONFIG_FILE].example Makefile.config
 $ gedit Makefile.config
 # Note: Here, you can adjust some settings to your liking, but I wouldn't recommend touching it too much as the settings are optimized to work on your chosen system.
+$ gedit src/caffe/util/math_functions.cpp
+# Note: Edit the following function to this:
+# void caffe_rng_uniform(const int n, Dtype a, Dtype b, Dtype* r) {
+#   CHECK_GE(n, 0);
+#   CHECK(r);
+
+#   if(a > b) {
+#     Dtype c = a;
+#     a = b;
+#     b = c;
+#   }
+#   CHECK_LE(a, b);
+# }
 $ make clean
 $ make all -j$(nproc)
 $ make test -j$(nproc) # important: run all test to see if there's any isuue somewhere!
@@ -139,7 +152,7 @@ $ make pytest -j$(nproc)
 $ cd ~
 $ gedit .bashrc
 # Append the following:
-    `export PYTHONPATH="${PYTHONPATH}:/home/[YOUR_USERNAME]/caffe/python" # or the location of the Python folder of your Caffe installation
+    export PYTHONPATH="${PYTHONPATH}:/home/[YOUR_USERNAME]/caffe/python" # or the location of the Python folder of your Caffe installation
 $ source .bashrc
 
 # Test installation with:
@@ -155,6 +168,6 @@ Good luck!
     
 ## References:
 - Official guides: https://qengineering.eu/install-caffe-on-ubuntu-20.04-with-opencv-4.4.html, https://github.com/weiliu89/caffe/tree/ssd, https://github.com/chuanqi305/MobileNet-SSD, https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
-- GitHub-issues: https://github.com/BVLC/caffe/issues/1325, https://github.com/BVLC/caffe/issues/4843, https://github.com/opencv/opencv/issues/14205
+- GitHub-issues: https://github.com/BVLC/caffe/issues/1325, https://github.com/BVLC/caffe/issues/4843, https://github.com/opencv/opencv/issues/14205, https://github.com/weiliu89/caffe/issues/669#issuecomment-339542120
 - Stack Overflow and Ask Ubuntu: https://stackoverflow.com/questions/38680593/importerror-no-module-named-google-protobuf, https://stackoverflow.com/questions/51350998/7515-fatal-error-stdlib-h-no-such-file-or-directory-include-next-stdlib-h, https://askubuntu.com/questions/1025928/why-do-i-get-sbin-ldconfig-real-usr-local-cuda-lib64-libcudnn-so-7-is-not-a
 - "Caffe Users" Google-group: https://groups.google.com/g/caffe-users/
